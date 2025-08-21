@@ -2,22 +2,20 @@ pipeline {
     agent any
 
     environment {
-        // NOTE: Replace these with your actual details
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'
-        GITHUB_REPO = 'your-github-username/expense-tracker-app'
+        // --- UPDATE THESE VALUES ---
+        DOCKERHUB_USERNAME = 'bhavanak52' // <-- Replace with your Docker Hub username
+        GITHUB_REPO = 'Bhavanak52/expense-tracker-app' // <-- Replace with your GitHub repo
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                // This checks out the code from the repository that triggered the build
                 checkout scm
             }
         }
 
         stage('Build Backend') {
             steps {
-                // Navigate into the backend directory and install dependencies
                 dir('backend') {
                     sh 'npm install'
                 }
@@ -26,7 +24,6 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                // Navigate into the frontend directory, install dependencies, and build
                 dir('frontend') {
                     sh 'npm install'
                     sh 'npm run build'
