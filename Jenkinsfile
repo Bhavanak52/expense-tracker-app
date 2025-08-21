@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // --- UPDATE THESE VALUES ---
-        DOCKERHUB_USERNAME = 'bhavanak52' // <-- Replace with your Docker Hub username
-        GITHUB_REPO = 'Bhavanak52/expense-tracker-app' // <-- Replace with your GitHub repo
+        // Make sure these values are correct for your setup
+        DOCKERHUB_USERNAME = 'bhavanak52' 
+        GITHUB_REPO = 'Bhavanak52/expense-tracker-app'
     }
 
     stages {
@@ -17,7 +17,8 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'npm install'
+                    // Use 'bat' for Windows
+                    bat 'npm install'
                 }
             }
         }
@@ -25,48 +26,43 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
+                    // Use 'bat' for Windows
+                    bat 'npm install'
+                    bat 'npm run build'
                 }
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                script {
-                    // Build the backend Docker image
-                    sh "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest ./backend"
-                    // Build the frontend Docker image
-                    sh "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest ./frontend"
-                }
+                // Use 'bat' for Windows
+                bat "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest ./backend"
+                bat "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest ./frontend"
             }
         }
 
         stage('Push Docker Images to Docker Hub') {
             steps {
-                // Log in to Docker Hub using credentials stored in Jenkins
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                    // Push the backend image
-                    sh "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest"
-                    // Push the frontend image
-                    sh "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest"
+                    // Use 'bat' for Windows. Note the double quotes for variable expansion.
+                    bat "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    bat "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest"
+                    bat "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest"
                 }
             }
         }
 
         stage('Deploy Application') {
             steps {
-                // Use docker-compose to stop any running instances and start new ones
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                // Use 'bat' for Windows
+                bat 'docker-compose down'
+                bat 'docker-compose up -d'
             }
         }
     }
 
     post {
         always {
-            // Clean up the workspace after the build is complete
             cleanWs()
         }
     }
