@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // --- THIS LINE WAS CHANGED ---
-        DOCKERHUB_USERNAME = 'bhavanakajampady' // <-- Use the username you log in with
+        DOCKERHUB_USERNAME = 'bhavanakajampady'
         GITHUB_REPO = 'Bhavanak52/expense-tracker-app'
     }
 
@@ -17,7 +16,8 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    bat 'npm install'
+                    // --- Corrected from bat to sh ---
+                    sh 'npm install'
                 }
             }
         }
@@ -25,33 +25,37 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    bat 'npm install'
-                    bat 'npm run build'
+                    // --- Corrected from bat to sh ---
+                    sh 'npm install'
+                    sh 'npm run build'
                 }
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                bat "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest ./backend"
-                bat "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest ./frontend"
+                // --- Corrected from bat to sh ---
+                sh "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest ./backend"
+                sh "docker build -t ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest ./frontend"
             }
         }
 
         stage('Push Docker Images to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                    bat "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest"
-                    bat "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest"
+                    // --- Corrected from bat to sh ---
+                    sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    sh "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-backend:latest"
+                    sh "docker push ${env.DOCKERHUB_USERNAME}/expense-tracker-frontend:latest"
                 }
             }
         }
 
         stage('Deploy Application') {
             steps {
-                bat 'docker-compose down'
-                bat 'docker-compose up -d'
+                // --- Corrected from bat to sh ---
+                sh 'docker-compose down'
+                sh 'docker-compose up -d'
             }
         }
     }
